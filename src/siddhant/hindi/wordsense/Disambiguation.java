@@ -25,7 +25,7 @@ public class Disambiguation {
 	
 	public HashMap<String,Long> runRandoms(){
 		
-		for (int r=0;r<5;r++){
+		for (int r=0;r<15;r++){
 			
 			Graph g = cg.rWalk();
 		

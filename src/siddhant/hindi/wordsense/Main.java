@@ -21,7 +21,7 @@ public class Main {
 		
 		ConstructGraph cg = new ConstructGraph(wordsSenses);
 		cg.run(); 
-		
+
 		Disambiguation da  = new Disambiguation(cg,wordsSenses);
 		da.runRandoms(); 
 		

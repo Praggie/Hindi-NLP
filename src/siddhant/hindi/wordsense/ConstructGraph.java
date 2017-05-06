@@ -3,16 +3,20 @@ package siddhant.hindi.wordsense;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.graphstream.algorithm.randomWalk.RandomWalk;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
-//import org.graphstream.ui.view.Viewer;
-import org.graphstream.ui.view.ViewerListener;
-//import org.graphstream.ui.view.ViewerPipe;
+
 
 import in.ac.iitb.cfilt.jhwnl.JHWNL;
 import in.ac.iitb.cfilt.jhwnl.JHWNLException;
@@ -21,7 +25,7 @@ import in.ac.iitb.cfilt.jhwnl.data.Synset;
 import in.ac.iitb.cfilt.jhwnl.dictionary.Dictionary;
 
 
-public class ConstructGraph implements ViewerListener {
+public class ConstructGraph {
 	
 	//contains senseIDs against each word
 	HashMap<String,ArrayList<Long>> wordsSenses;
@@ -45,6 +49,7 @@ public class ConstructGraph implements ViewerListener {
 		keys = new HashSet<String>();
 		g=new MultiGraph("Graph");
 	}
+	
 	
 	public void construction(){
 		
@@ -96,6 +101,38 @@ public class ConstructGraph implements ViewerListener {
 				 
 				 for (int m=0;m<s1.size();m++){
 					 
+					 
+					 /*  This Code For Multitasking */
+					 
+					 /* 
+					 long senseid = s1.get(m);
+					 
+					 try {
+						List<ThreadsOutput> out = processInputs(senseid,s2,new maxDepth());
+						for (ThreadsOutput xyz:out){							 
+							 if(xyz.weight>0){
+								 
+								 float newWeight= 1/(float) xyz.weight; 
+								 System.out.println("final weight is:"+newWeight);
+								 try
+				                    {
+				                        Edge e = g.addEdge(Long.toString(xyz.senseid)+"_" + Long.toString(xyz.senseid2), Long.toString(xyz.senseid), Long.toString(xyz.senseid2));
+				                        e.addAttribute("weight", newWeight);
+				                        e.addAttribute("ui.label",newWeight);
+				                        
+				                    }
+				                 catch (Exception e)
+				                    {
+				                        e.printStackTrace();
+				                    }
+							 } 
+						}
+					} catch (InterruptedException | ExecutionException e) {
+						e.printStackTrace();
+					} 
+					
+					 */
+					 
 					 long senseid = s1.get(m);
 					 
 					 for (int q=0;q<s2.size();q++){
@@ -117,9 +154,7 @@ public class ConstructGraph implements ViewerListener {
 			                    }
 			                 catch (Exception e)
 			                    {
-			                	 	System.err.println("*****ERROR ERROR ERROR*****");
 			                	 	System.err.println("Error: Counldn't Create Edge b/w "+senseid + "& "+senseid2+" with weight "+newWeight);
-			                	 	System.err.println("***** FINISHED ERROR  *****");
 			                        e.printStackTrace();
 			                    }
 						 }
@@ -130,45 +165,54 @@ public class ConstructGraph implements ViewerListener {
 		 }  
 	}
 	
+	
+	/* For MultiThreading: Getting Weight  */
+	public List<ThreadsOutput> processInputs(Long senseid,ArrayList<Long> s2,maxDepth obj)
+	        throws InterruptedException, ExecutionException {
+
+	    int threads = Runtime.getRuntime().availableProcessors();
+	    ExecutorService service = Executors.newFixedThreadPool(threads);
+
+	    List<Future<ThreadsOutput>> futures = new ArrayList<Future<ThreadsOutput>>();
+	    
+	    List<Integer> iterate = new ArrayList<Integer>();
+	    
+	    for (int i=0;i<s2.size();i++){
+	    	iterate.add(i);
+	    }
+	    
+	    
+	    for (final Integer i:iterate) {
+	        Callable<ThreadsOutput> callable = new Callable<ThreadsOutput>() {
+	            public ThreadsOutput call() throws Exception {
+					 long senseid2 = s2.get(i);
+					 int weight=obj.compute_distance(senseid, senseid2);
+					 ThreadsOutput output = new ThreadsOutput(senseid,senseid2,weight);
+					 return output;
+	            }
+	        };
+	       futures.add(service.submit(callable));
+	    }
+
+	    service.shutdown();
+	    
+	    List<ThreadsOutput> outputs = new ArrayList<ThreadsOutput>();
+	    for (Future<ThreadsOutput> future : futures) {
+	        outputs.add(future.get());
+	    }
+	    return outputs; 
+	}
+	
+	
 	public void displayGraph(){
-		
-//	 	String styleSheet = "node{size:7.5px;fill-color: black; text-size:10px;text-mode:hidden;} " +
-//                "node.marked{fill-color: red;text-size:15px;text-mode:normal;text-color:blue;text-style:bold;size:10px;} " +
-//                "edge{fill-color:green;text-size:10px;} " +
-//                "edge.marked{fill-color:red;text-size:15px;size:3px;text-color:yellow;text-style:bold;}";
-//	 	
-//        g.addAttribute("ui.stylesheet",styleSheet);
-		
 		
 		String styleSheet="node{fill-color:red;}"+
 		"edge{fill-color:green;}";
 		
 		g.addAttribute("ui.stylesheet",styleSheet);
-		
 		g.addAttribute("ui.antialias", true);
-		
-		//g.addAttribute("ui.stylesheet", "node {fill-color: red; size-mode: dyn-size;} edge {fill-color:grey;}");
-		
 		g.display();
 		
-        //Viewer viewer = g.display();
-        /*
-        viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
-
-        ViewerPipe fromViewer = viewer.newViewerPipe();
-        fromViewer.addViewerListener(this);
-        fromViewer.addSink(g);
-
-        // to enable clicks in graph 
-        while(loop)
-        {
-            try {
-				fromViewer.blockingPump();
-			} catch (InterruptedException e) {				
-				loop=false;
-				e.printStackTrace();
-			}; 
-        } */	
 	}
 	
 	public Graph rWalk(){
@@ -194,31 +238,6 @@ public class ConstructGraph implements ViewerListener {
 		
 		displayGraph();
 		construction();
-		//rWalk();
-		
-		//return g; 
 	}
 	
-	@Override
-	public void buttonPushed(String id) {
-
-		 System.out.println("Button pushed on node "+id);
-         Node n=g.getNode(id);
-         
-         NodeInfo information = n.getAttribute("info");
-         System.out.println("Original Word: "+information.originalword+" \nSense: "+information.senseid + "\nRank: "+information.importance);
-         n.setAttribute("ui.class","marked");
-	}
-
-	@Override
-	public void buttonReleased(String arg0) {
-				
-	}
-
-	@Override
-	public void viewClosed(String arg0) {
-		//loop=false; 
-		
-	}
-
 }
