@@ -14,6 +14,12 @@ import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.ui.view.ViewerListener;
 //import org.graphstream.ui.view.ViewerPipe;
 
+import in.ac.iitb.cfilt.jhwnl.JHWNL;
+import in.ac.iitb.cfilt.jhwnl.JHWNLException;
+import in.ac.iitb.cfilt.jhwnl.data.POS;
+import in.ac.iitb.cfilt.jhwnl.data.Synset;
+import in.ac.iitb.cfilt.jhwnl.dictionary.Dictionary;
+
 
 public class ConstructGraph implements ViewerListener {
 	
@@ -42,7 +48,7 @@ public class ConstructGraph implements ViewerListener {
 	
 	public void construction(){
 		
-			
+		 JHWNL.initialize();
 		 keys=wordsSenses.keySet();
 		 Object[] keysArray; 
 		 keysArray=keys.toArray();
@@ -63,6 +69,13 @@ public class ConstructGraph implements ViewerListener {
 	            	// NodeInfo custom data structure
 	            	NodeInfo details = new NodeInfo(keysArray[i].toString(),senseid);
 	            	n.addAttribute("info", details);	
+	            	try {
+						 Synset a=Dictionary.getInstance().getSynsetAt(POS.NOUN,senseid);
+						 n.addAttribute("ui.label",""+a.getWord(1)+"_ID"+Long.toString(senseid));
+					} catch (JHWNLException e) {
+						e.printStackTrace();
+					}
+	            	
 	            }
 	        }
 		 
@@ -94,6 +107,7 @@ public class ConstructGraph implements ViewerListener {
 							 
 							 float newWeight= 1/(float) weight; 
 							 System.out.println("final weight is:"+newWeight);
+							 //System.out.println("******************************************************************");
 							 try
 			                    {
 			                        Edge e = g.addEdge(Long.toString(senseid)+"_" + Long.toString(senseid2), Long.toString(senseid), Long.toString(senseid2));
@@ -103,6 +117,9 @@ public class ConstructGraph implements ViewerListener {
 			                    }
 			                 catch (Exception e)
 			                    {
+			                	 	System.err.println("*****ERROR ERROR ERROR*****");
+			                	 	System.err.println("Error: Counldn't Create Edge b/w "+senseid + "& "+senseid2+" with weight "+newWeight);
+			                	 	System.err.println("***** FINISHED ERROR  *****");
 			                        e.printStackTrace();
 			                    }
 						 }
@@ -115,12 +132,19 @@ public class ConstructGraph implements ViewerListener {
 	
 	public void displayGraph(){
 		
-	 	String styleSheet = "node{size:7.5px;fill-color: black; text-size:10px;text-mode:hidden;} " +
-                "node.marked{fill-color: red;text-size:15px;text-mode:normal;text-color:blue;text-style:bold;size:10px;} " +
-                "edge{fill-color:green;text-size:10px;} " +
-                "edge.marked{fill-color:red;text-size:15px;size:3px;text-color:yellow;text-style:bold;}";
-	 	
-        g.addAttribute("ui.stylesheet",styleSheet);
+//	 	String styleSheet = "node{size:7.5px;fill-color: black; text-size:10px;text-mode:hidden;} " +
+//                "node.marked{fill-color: red;text-size:15px;text-mode:normal;text-color:blue;text-style:bold;size:10px;} " +
+//                "edge{fill-color:green;text-size:10px;} " +
+//                "edge.marked{fill-color:red;text-size:15px;size:3px;text-color:yellow;text-style:bold;}";
+//	 	
+//        g.addAttribute("ui.stylesheet",styleSheet);
+		
+		
+		String styleSheet="node{fill-color:red;}"+
+		"edge{fill-color:green;}";
+		
+		g.addAttribute("ui.stylesheet",styleSheet);
+		
 		g.addAttribute("ui.antialias", true);
 		
 		//g.addAttribute("ui.stylesheet", "node {fill-color: red; size-mode: dyn-size;} edge {fill-color:grey;}");
@@ -159,7 +183,7 @@ public class ConstructGraph implements ViewerListener {
 		rwalk.terminate();
 
 		for(Node node: g.getEachNode()) {
-			System.out.printf("Node %s counts %f%n", node.getId(), rwalk.getPasses(node));
+			//System.out.printf("Node %s counts %f%n", node.getId(), rwalk.getPasses(node));
 			NodeInfo ni = node.getAttribute("info");
 			ni.importance = rwalk.getPasses(node);
 		}
@@ -168,9 +192,10 @@ public class ConstructGraph implements ViewerListener {
 	
 	public void run(){
 		
+		displayGraph();
 		construction();
 		//rWalk();
-		displayGraph();
+		
 		//return g; 
 	}
 	

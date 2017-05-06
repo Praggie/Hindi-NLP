@@ -80,11 +80,11 @@ public class WordSenses {
 	
 	void DisplayHashMap(){
 		
-		 System.out.println("*************************************");
-		 for(Map.Entry m:wordsSenses.entrySet()){  
+		 System.out.println("\n\n******* WORDS -> SENSES ***********");
+		 for(Map.Entry<String,ArrayList<Long>> m:wordsSenses.entrySet()){  
 			   System.out.println(m.getKey()+" = "+m.getValue());  
 			  } 		
-		 System.out.println("*************************************");
+		 System.out.println("************************************* \n");
 	}
 	
 	

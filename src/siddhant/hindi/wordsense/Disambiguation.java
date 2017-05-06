@@ -9,57 +9,90 @@ import java.util.Map;
 
 public class Disambiguation {
 	
-	Graph graph;
+	ConstructGraph cg; 
 	HashMap<String,ArrayList<Long>> wordsSenses; 
 	ArrayList<Long> values; 
 	HashMap<String,Long> disambiguated; 
+	HashMap<Long,Double> sumImportance;
 	
-	Disambiguation(Graph g,HashMap<String,ArrayList<Long>> ws){
-		graph=g; 
+	Disambiguation(ConstructGraph g,HashMap<String,ArrayList<Long>> ws){
+		cg=g; 
 		wordsSenses=ws;
 		values = new ArrayList<Long>();
 		disambiguated = new HashMap<String,Long>();
+		sumImportance = new HashMap<Long,Double>(); 
 	}
 	
-	public void findBest(){
+	public HashMap<String,Long> runRandoms(){
 		
-		for(Map.Entry m:wordsSenses.entrySet()){  
-			   //System.out.println(m.getKey()+" = "+m.getValue());  
-			   String key = m.getKey().toString();
-			   values = wordsSenses.get(key);
+		for (int r=0;r<5;r++){
+			
+			Graph g = cg.rWalk();
+		
+			for(Map.Entry<String,ArrayList<Long>> m:wordsSenses.entrySet()){ 
+				
+				String key = m.getKey().toString();
+				values = wordsSenses.get(key);
 			   
-			   if (values.size()<=0){
-				   continue; 
-			   }
-			   
-			   Long start = values.get(0);
-			   
-			   Node n = graph.getNode(start.toString()); 
-			   NodeInfo answer = n.getAttribute("info");
-			   
-			   double max = answer.importance;
-			   
-			   for (Long i:values){
+				if (values.size()<=0){
+						continue; 
+					}
+					
+				for (Long i:values){
 				   
-				   n = graph.getNode(i.toString());
-				   NodeInfo details = n.getAttribute("info");
+					Node n = g.getNode(i.toString());
+					NodeInfo details = n.getAttribute("info");
 				   
-				   double imp = details.importance;
+					double imp = details.importance;
 				   
-				   if (imp>max){
-					   max=imp;
-					   answer=details; 
-				   }
-			   }
-			   
-			   disambiguated.put(key,answer.senseid);
-			   //System.out.println("Correct Meaning of: "+key+" is at:"+answer.senseid);
-			  } 		
-	}
+				   	if (sumImportance.containsKey(i)==true){
+				   		double x=sumImportance.get(i);
+				   		x+=imp;
+				   		sumImportance.put(i, x);
+				   	}
+				   	else {
+				   		sumImportance.put(i,imp); 
+				   	} 
+				}
+			}
+		}
+		
+		for (Map.Entry<String,ArrayList<Long>> m:wordsSenses.entrySet()){
+			String key = m.getKey().toString();
+			values = wordsSenses.get(key);
+		   
+			if (values.size()<=0){
+					continue; 
+				}
 
-	public HashMap<String,Long> run(){
-		findBest();
+			Long ansSenseID=values.get(0);
+			double max = sumImportance.get(ansSenseID); 
+			
+			for (Long i:values){
+				
+				double x = sumImportance.get(i);
+				if(x>max){
+					max=x;
+					ansSenseID=i;
+				}
+				//System.out.println("ID:"+i+"SUM:"+x);
+			}
+			
+			disambiguated.put(key, ansSenseID); 
+		}
+		display(disambiguated);
 		return disambiguated; 
+	}
+	
+
+	public void display(HashMap<String,Long> ds){
+		
+		for(Map.Entry<String,Long> i:ds.entrySet()){
+			String key=i.getKey(); 
+			Long senseid= i.getValue();
+			System.out.println("Word: "+key+" SenseID "+senseid);
+		}
+		
 	}
 
 }

@@ -17,6 +17,11 @@ class maxDepth
   static Vector queue ;//Contains all root nodes of WordNet
   static Vector depth ;
   static Vector totalList ;
+  
+  
+  maxDepth(){
+	  JHWNL.initialize();
+  }
 	
   static void maxDepthComputer()
 {
@@ -133,7 +138,7 @@ class maxDepth
   {
     try
     {
-	JHWNL.initialize();
+	
 	queue = new Vector(40000);
 	depth = new Vector(40000);
 	totalList = new Vector(40000);
@@ -168,13 +173,16 @@ class maxDepth
 	//do
 	//{
 	  tmp1 = Dictionary.getInstance().getInstance().getSynsetAt(POS.NOUN,a);//(int)(30977*Math.random()));
+	  //System.out.println(tmp1.getWord(1));
 	//}while(tmp1==null);
 	//do
 	//{
 	  tmp2 = Dictionary.getInstance().getInstance().getSynsetAt(POS.NOUN,b);//(int)(30977*Math.random()));
+	  //System.out.println(tmp2.getWord(1));
 	//}while(tmp2==null);
 	
-	System.out.println("The Synsets chosen are\n"+tmp1+"\n"+tmp2);
+	System.out.println("\n");
+	System.out.println("The Synsets chosen are:\n"+tmp1+"\n"+tmp2);
 	//System.out.println("Starting Distance Computation");
 	int dist = Semantic_Distance(tmp1,tmp2);
 	//System.out.println("Distance Computation Ended");
