@@ -19,7 +19,6 @@ public class PreProcess {
 	String address; 
 	String inputfilename; 
 	String stopwordfile; 
-	String targetWord; 
 	String targetWordFile; 
 	BufferedReader inputWordsFile = null;
 	
@@ -32,20 +31,14 @@ public class PreProcess {
 	
 	ArrayList<String> run(){
 		
-		targetWord = getTargetWord(); 
-		System.out.println("Target Word is: "+targetWord);
-		
 		ArrayList<String> cleanWords; 
 		cleanWords=readAndFilter(inputfilename); 
-		
 		/*
 		ArrayList<String> stopWordsRemoved; 
 		stopWordsRemoved=stopWordRemoval(cleanWords);
 		*/
-		
 		return cleanWords; 
 		//return stopWordsRemoved; 
-		
 	}
 	
     /* Gets target word from a file */
