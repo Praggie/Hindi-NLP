@@ -9,11 +9,12 @@ public class Main {
 		
 		long timeStart = System.currentTimeMillis();
 		
+		
 		ArrayList<String> inputWords = new ArrayList<String>();
 		PreProcess pp = new PreProcess();
 		inputWords=pp.run(); 
+		System.out.println(inputWords);
 			
-		
 		HashMap<String,ArrayList<Long>> wordsSenses = new HashMap<String,ArrayList<Long>>();
 		WordSenses ws = new WordSenses(inputWords);
 		wordsSenses=ws.run(); 
@@ -31,6 +32,7 @@ public class Main {
 		
 		System.out.println("The Program Took "+timeTook+" miliseconds");
 		System.out.println("The Program Took "+minutes+" minutes");
+		
 	  
 	}
 }

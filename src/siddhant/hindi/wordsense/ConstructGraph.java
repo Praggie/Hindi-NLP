@@ -3,13 +3,13 @@ package siddhant.hindi.wordsense;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+//import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+//import java.util.concurrent.Callable;
+//import java.util.concurrent.ExecutionException;
+//import java.util.concurrent.ExecutorService;
+//import java.util.concurrent.Executors;
+//import java.util.concurrent.Future;
 
 import org.graphstream.algorithm.randomWalk.RandomWalk;
 import org.graphstream.graph.Edge;
@@ -167,6 +167,7 @@ public class ConstructGraph {
 	
 	
 	/* For MultiThreading: Getting Weight  */
+	/*
 	public List<ThreadsOutput> processInputs(Long senseid,ArrayList<Long> s2,maxDepth obj)
 	        throws InterruptedException, ExecutionException {
 
@@ -202,7 +203,7 @@ public class ConstructGraph {
 	    }
 	    return outputs; 
 	}
-	
+	*/
 	
 	public void displayGraph(){
 		
