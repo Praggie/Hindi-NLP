@@ -33,18 +33,40 @@ public class Disambiguation {
 	
 	public Synset run(){
 		
-		runRandoms();
-		long correctSense = disambiguated.get(targetWord);
+//		runRandoms();
+//		long correctSense = disambiguated.get(targetWord);
+		long correctSense = getMax(); 
 		JHWNL.initialize();
 		try {
 			Synset answer = Dictionary.getInstance().getSynsetAt(POS.NOUN, correctSense);
-			System.out.println(answer);
+			System.out.println("\n"+answer);
 			return answer; 
 		} catch (JHWNLException e) {
 			e.printStackTrace();
 			return null;
 		} 
 		
+	}
+	
+	public Long getMax(){
+		
+		HashMap<Long,Float> indegree = cg.weightedDegree();
+		
+		ArrayList<Long> targetSenses = wordsSenses.get(targetWord);
+		
+		Long ans = targetSenses.get(0);
+		float max = indegree.get(ans);
+		
+		for (int i=0;i<targetSenses.size();i++){
+			Long key = targetSenses.get(i);
+			Float val = indegree.get(key);
+			if (val>max){
+				max = val;
+				ans = key; 
+			}
+		}
+		
+		return ans; 
 	}
 	
 	public HashMap<String,Long> runRandoms(){

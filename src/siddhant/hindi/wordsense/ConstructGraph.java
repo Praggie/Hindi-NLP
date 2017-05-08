@@ -50,6 +50,11 @@ public class ConstructGraph {
 		g=new MultiGraph("Graph");
 	}
 	
+	public void run(){
+		
+		displayGraph();
+		construction();
+	}
 	
 	public void construction(){
 		
@@ -165,7 +170,58 @@ public class ConstructGraph {
 		 }  
 	}
 	
+	public void displayGraph(){
+		
+		String styleSheet="node{fill-color:red;}"+
+		"edge{fill-color:green;}";
+		
+		g.addAttribute("ui.stylesheet",styleSheet);
+		g.addAttribute("ui.antialias", true);
+		g.display();
+		
+	}
 	
+	public Graph rWalk(){
+		RandomWalk rwalk = new RandomWalk();
+
+		rwalk.setEntityCount(g.getNodeCount()/2);
+		rwalk.init(g);
+
+		for(int i=0; i<500; i++) {
+			rwalk.compute();
+		}
+		rwalk.terminate();
+
+		for(Node node: g.getEachNode()) {
+			//System.out.printf("Node %s counts %f%n", node.getId(), rwalk.getPasses(node));
+			NodeInfo ni = node.getAttribute("info");
+			ni.importance = rwalk.getPasses(node);
+		}
+		return g; 
+	}
+	
+	public HashMap<Long,Float> weightedDegree(){
+		
+		HashMap<Long,Float> inDegree = new HashMap<Long,Float>(); 
+		
+		for (Node n:g){
+			NodeInfo info = n.getAttribute("info");
+			long id = info.senseid;
+			float sum = 0; 
+			//System.out.println("At node "+id);
+			
+			for (Edge e:n.getEachEdge()){
+				float weight=e.getAttribute("weight");
+				//System.out.println("The Edge b/w"+ e.getNode0()+" "+e.getNode1()+"has weight"+weight);
+				sum+=weight; 
+			}
+			
+			inDegree.put(id, sum);
+			//System.out.println("Key: "+id+" Sum: "+sum);
+		}
+		
+		return inDegree; 
+	}
 	/* For MultiThreading: Getting Weight  */
 	/*
 	public List<ThreadsOutput> processInputs(Long senseid,ArrayList<Long> s2,maxDepth obj)
@@ -204,41 +260,5 @@ public class ConstructGraph {
 	    return outputs; 
 	}
 	*/
-	
-	public void displayGraph(){
-		
-		String styleSheet="node{fill-color:red;}"+
-		"edge{fill-color:green;}";
-		
-		g.addAttribute("ui.stylesheet",styleSheet);
-		g.addAttribute("ui.antialias", true);
-		g.display();
-		
-	}
-	
-	public Graph rWalk(){
-		RandomWalk rwalk = new RandomWalk();
-
-		rwalk.setEntityCount(g.getNodeCount()/2);
-		rwalk.init(g);
-
-		for(int i=0; i<500; i++) {
-			rwalk.compute();
-		}
-		rwalk.terminate();
-
-		for(Node node: g.getEachNode()) {
-			//System.out.printf("Node %s counts %f%n", node.getId(), rwalk.getPasses(node));
-			NodeInfo ni = node.getAttribute("info");
-			ni.importance = rwalk.getPasses(node);
-		}
-		return g; 
-	}
-	
-	public void run(){
-		
-		displayGraph();
-		construction();
-	}
 	
 }

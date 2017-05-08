@@ -94,6 +94,8 @@ public class Main {
 					answers.add(ans);
 				}
 			}
+			
+			System.out.println("**********");
 		}
 		
 		/* to calculate the accuracy */
@@ -122,8 +124,10 @@ public class Main {
 				output.write(contextWindow.toString()+","+id+"\n");
 				
 				/* Calculating correctly disambiguated senses  */
+				//System.out.println("id: "+id.getClass().getName()+"correct: "+correct.getClass().getName());
 				
-				if (id==correct){
+				if (id.equals(correct)){
+					//System.out.println("correct");
 					correctDisambiguated+=1; 
 				}
 				
@@ -146,13 +150,16 @@ public class Main {
 		
 		
 		/* Getting the key with maximum counts for document voting */
-		Long elected = Collections.max(voting.entrySet(), (entry1, entry2) -> entry1.getValue() - entry2.getValue()).getKey();
-		System.out.println("The complete document disambiguated is:"+elected);
 		
+		Long elected = Collections.max(voting.entrySet(), (entry1, entry2) -> entry1.getValue() - entry2.getValue()).getKey();
+		System.out.println("\nThe complete document disambiguated is:"+elected);
+		
+		//System.out.println("CorrectDisambiguated:"+correctDisambiguated);
+		//System.out.println("Size:"+answers.size());
 		/* Calculating Accuracy */
 		try {
 			float accuracy = correctDisambiguated/answers.size(); 
-			System.out.println("The Accuracy of the System is: "+accuracy);
+			System.out.println("\n\nThe Accuracy of the System is: "+accuracy*100+"%");
 		} catch (Exception e){
 			System.err.println("Can't Divide");
 			e.printStackTrace();
@@ -160,9 +167,9 @@ public class Main {
 		
 		long timeFinish = System.currentTimeMillis();
 		long timeTook = timeFinish - timeStart; 
-		double minutes = timeTook/60000; 
+		float minutes = (float) timeTook/60000; 
 		
-		System.out.println("The Program Took "+timeTook+" miliseconds");
+		System.out.println("\n\nThe Program Took "+timeTook+" miliseconds");
 		System.out.println("The Program Took "+minutes+" minutes");
 		
 	  
