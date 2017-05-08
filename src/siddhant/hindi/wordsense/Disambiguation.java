@@ -3,6 +3,12 @@ package siddhant.hindi.wordsense;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
+import in.ac.iitb.cfilt.jhwnl.JHWNL;
+import in.ac.iitb.cfilt.jhwnl.JHWNLException;
+import in.ac.iitb.cfilt.jhwnl.data.POS;
+import in.ac.iitb.cfilt.jhwnl.data.Synset;
+import in.ac.iitb.cfilt.jhwnl.dictionary.Dictionary;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map; 
@@ -14,13 +20,31 @@ public class Disambiguation {
 	ArrayList<Long> values; 
 	HashMap<String,Long> disambiguated; 
 	HashMap<Long,Double> sumImportance;
+	String targetWord; 
 	
-	Disambiguation(ConstructGraph g,HashMap<String,ArrayList<Long>> ws){
+	Disambiguation(ConstructGraph g,HashMap<String,ArrayList<Long>> ws,String tW){
 		cg=g; 
 		wordsSenses=ws;
+		targetWord = tW; 
 		values = new ArrayList<Long>();
 		disambiguated = new HashMap<String,Long>();
 		sumImportance = new HashMap<Long,Double>(); 
+	}
+	
+	public Synset run(){
+		
+		runRandoms();
+		long correctSense = disambiguated.get(targetWord);
+		JHWNL.initialize();
+		try {
+			Synset answer = Dictionary.getInstance().getSynsetAt(POS.NOUN, correctSense);
+			System.out.println(answer);
+			return answer; 
+		} catch (JHWNLException e) {
+			e.printStackTrace();
+			return null;
+		} 
+		
 	}
 	
 	public HashMap<String,Long> runRandoms(){
@@ -80,7 +104,7 @@ public class Disambiguation {
 			
 			disambiguated.put(key, ansSenseID); 
 		}
-		display(disambiguated);
+		//display(disambiguated);
 		return disambiguated; 
 	}
 	

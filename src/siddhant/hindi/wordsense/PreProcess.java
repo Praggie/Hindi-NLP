@@ -24,7 +24,7 @@ public class PreProcess {
 	
 	PreProcess(){
 		address = "./dataset/";
-		inputfilename="small.txt";
+		inputfilename="inputwords1.txt";
 		targetWordFile="targetword.txt";
 		stopwordfile="hindistopwords.txt";
 	}
@@ -40,6 +40,38 @@ public class PreProcess {
 		return cleanWords; 
 		//return stopWordsRemoved; 
 	}
+	
+	
+	public Long readSense(){
+		
+		String filename = "sense.txt";
+		
+		try {
+			BufferedReader input = new BufferedReader(new InputStreamReader(new FileInputStream(address+filename),"unicode"));
+			String ans = input.readLine().trim();
+			Long sen = Long.valueOf(ans);
+			input.close();
+			return sen; 
+			
+		} catch ( FileNotFoundException e) {
+			System.err.println("sense.txt not found");
+			e.printStackTrace();
+			System.exit(-1);
+			return null; 
+		} catch (UnsupportedEncodingException e){
+			System.err.println("sense.txt : unicode not supported");
+			e.printStackTrace();
+			System.exit(-1);
+			return null; 
+		} catch (IOException e){
+			System.err.println("sense.txt : can't read");
+			e.printStackTrace();
+			System.exit(-1);
+			return null; 
+		}
+		
+	}
+	
 	
     /* Gets target word from a file */
 	public String getTargetWord()
