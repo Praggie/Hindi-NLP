@@ -120,7 +120,7 @@ public class Main {
 			System.out.println(" ");
 			for (int xy=0;xy<answers.size();xy++){
 				
-				System.out.println(xy+" "+targetWord+" -> "+answers.get(xy));
+				System.out.println((xy+1)+" "+targetWord+" -> "+answers.get(xy));
 				
 				Long id=answers.get(xy).getOffset();
 				
@@ -130,9 +130,12 @@ public class Main {
 				output.newLine();
 				
 				/* Calculating correctly disambiguated senses  */
-				//System.out.println("id: "+id.getClass().getName()+"correct: "+correct.getClass().getName());
+				System.out.println("id: "+id+"correct: "+correct);
+				System.out.println("id: "+id.getClass().getName()+"correct: "+correct.getClass().getName());
+				
 				
 				if (id.toString().equals(correct.toString())){
+					System.out.println("if correct here");
 					correctDisambiguated+=1; 
 				}
 				
