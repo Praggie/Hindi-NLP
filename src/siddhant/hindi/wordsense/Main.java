@@ -33,6 +33,7 @@ public class Main {
 		
 		
 		ArrayList<String> contextWindow = new ArrayList<String>();
+		ArrayList<ArrayList<String>> allContextWindow = new ArrayList<ArrayList<String>>();
 		ArrayList<Synset> answers = new ArrayList<Synset>();
 		int contextWindowSize = 5; 
 		
@@ -74,7 +75,7 @@ public class Main {
 				}
 				
 
-				System.out.println("Context Window Contains: "+contextWindow);
+				System.out.println("\n\nContext Window Contains: "+contextWindow);
 				
 				/*  WordSense would contain word from context window and it's corresponding list of senses  */
 				
@@ -93,9 +94,11 @@ public class Main {
 				if (ans!=null){
 					answers.add(ans);
 				}
+				allContextWindow.add(contextWindow);
+				contextWindow = new ArrayList<String>();
+				
 			}
 			
-			System.out.println("**********");
 		}
 		
 		/* to calculate the accuracy */
@@ -110,24 +113,26 @@ public class Main {
 		 */
 		
 		try {
-			Writer outputDetailed,output = null;
+			BufferedWriter outputDetailed,output = null;
 			outputDetailed = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(address+"outputDetailed.txt"), "unicode"));            
 			output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(address+"output.txt"), "unicode"));		
 			
+			System.out.println(" ");
 			for (int xy=0;xy<answers.size();xy++){
 				
 				System.out.println(xy+" "+targetWord+" -> "+answers.get(xy));
 				
 				Long id=answers.get(xy).getOffset();
 				
-				outputDetailed.write(contextWindow.toString()+","+answers.get(xy)+"\n");
-				output.write(contextWindow.toString()+","+id+"\n");
+				outputDetailed.write(allContextWindow.get(xy).toString()+","+answers.get(xy));
+				outputDetailed.newLine();
+				output.write(allContextWindow.get(xy).toString()+","+id);
+				output.newLine();
 				
 				/* Calculating correctly disambiguated senses  */
 				//System.out.println("id: "+id.getClass().getName()+"correct: "+correct.getClass().getName());
 				
-				if (id.equals(correct)){
-					//System.out.println("correct");
+				if (id.toString().equals(correct.toString())){
 					correctDisambiguated+=1; 
 				}
 				
@@ -154,8 +159,7 @@ public class Main {
 		Long elected = Collections.max(voting.entrySet(), (entry1, entry2) -> entry1.getValue() - entry2.getValue()).getKey();
 		System.out.println("\nThe complete document disambiguated is:"+elected);
 		
-		//System.out.println("CorrectDisambiguated:"+correctDisambiguated);
-		//System.out.println("Size:"+answers.size());
+
 		/* Calculating Accuracy */
 		try {
 			float accuracy = correctDisambiguated/answers.size(); 
@@ -169,9 +173,6 @@ public class Main {
 		long timeTook = timeFinish - timeStart; 
 		float minutes = (float) timeTook/60000; 
 		
-		System.out.println("\n\nThe Program Took "+timeTook+" miliseconds");
 		System.out.println("The Program Took "+minutes+" minutes");
-		
-	  
 	}
 }

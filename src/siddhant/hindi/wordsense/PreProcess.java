@@ -24,7 +24,7 @@ public class PreProcess {
 	
 	PreProcess(){
 		address = "./dataset/";
-		inputfilename="inputwords1.txt";
+		inputfilename="inputwords2.txt";
 		targetWordFile="targetword.txt";
 		stopwordfile="hindistopwords.txt";
 	}
