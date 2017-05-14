@@ -20,13 +20,15 @@ public class PreProcess {
 	String inputfilename; 
 	String stopwordfile; 
 	String targetWordFile; 
+	String sensefilename; 
 	BufferedReader inputWordsFile = null;
 	
-	PreProcess(){
-		address = "./dataset/";
-		inputfilename="inputwords2.txt";
-		targetWordFile="targetword.txt";
-		stopwordfile="hindistopwords.txt";
+	PreProcess(String addr,String inpFN,String targWF,String SWF,String senseFN){
+		address = addr;
+		inputfilename=inpFN;
+		targetWordFile=targWF;
+		stopwordfile=SWF;
+		sensefilename=senseFN; 
 	}
 	
 	ArrayList<String> run(){
@@ -44,10 +46,8 @@ public class PreProcess {
 	
 	public Long readSense(){
 		
-		String filename = "sense.txt";
-		
 		try {
-			BufferedReader input = new BufferedReader(new InputStreamReader(new FileInputStream(address+filename),"unicode"));
+			BufferedReader input = new BufferedReader(new InputStreamReader(new FileInputStream(address+sensefilename),"unicode"));
 			String ans = input.readLine().trim();
 			Long sen = Long.valueOf(ans);
 			input.close();

@@ -69,10 +69,6 @@ public class WordSenses {
 				System.err.println("Internal Error raised from API.");
 				e.printStackTrace();
 			}
-			
-			
-			
-			
 		}
 		
 	}
@@ -89,6 +85,8 @@ public class WordSenses {
 	
 	
 	HashMap<String,ArrayList<Long>> run(){
+		
+		System.out.println("\n\nInitializing in WordSense.class");
 		JHWNL.initialize();
 		getSenseIDs(); 
 		DisplayHashMap();

@@ -3,8 +3,13 @@ package siddhant.hindi.wordsense;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -19,7 +24,7 @@ import in.ac.iitb.cfilt.jhwnl.data.Synset;
 import in.ac.iitb.cfilt.jhwnl.dictionary.Dictionary;
 
 
-public class ConstructGraph {
+public class ConstructGraphMultiThreaded {
 	
 	//contains senseIDs against each word
 	HashMap<String,ArrayList<Long>> wordsSenses;
@@ -32,9 +37,8 @@ public class ConstructGraph {
 	ArrayList<Long> senses; 
 	Graph g; 
 	maxDepth mD; 
-
 	
-	ConstructGraph(HashMap<String,ArrayList<Long>> ws){
+	ConstructGraphMultiThreaded(HashMap<String,ArrayList<Long>> ws){
 		mD = new maxDepth();
 		wordsSenses=ws; 
 		senses = new ArrayList<Long>();
@@ -48,11 +52,20 @@ public class ConstructGraph {
 		construction();
 	}
 	
+	public void displayGraph(){
+		
+		String styleSheet="node{fill-color:red;}"+
+		"edge{fill-color:green;}";
+		
+		g.addAttribute("ui.stylesheet",styleSheet);
+		g.addAttribute("ui.antialias", true);
+		g.display();
+		
+	}
+	
 	public void construction(){
 		
-		 System.out.println("Initializing in construction.class");
 		 JHWNL.initialize();
-		 System.out.println("");
 		 keys=wordsSenses.keySet();
 		 Object[] keysArray; 
 		 keysArray=keys.toArray();
@@ -83,7 +96,7 @@ public class ConstructGraph {
 	            }
 	        }
 		 
-		 /* Each word has multiple senses and I don't want any relation (weight/wordnet distance) between them 
+		 /* Each word has multiple senses and I don't want any relation (weight/wordnet distance) between senses of a same parent word.  
 		  * Hence I take a word (key) and then start from next corresponding word (p=l+1, in the code)
 		  * Of each word (key) I get the arrayList (key) containing senseIDs  
 		  * Now I find the maximum depth in the word net comparing the senseIDs of first key and the senseIDs of the corresponding keys
@@ -98,50 +111,82 @@ public class ConstructGraph {
 				 ArrayList<Long> s2 = new ArrayList<Long>();
 				 s2 = wordsSenses.get(keysArray[p]);
 				 
-				 for (int m=0;m<s1.size();m++){			
+				 for (int m=0;m<s1.size();m++){
 					 
+					 
+					 /*  This Code Does Multitasking */
+					 	 
 					 long senseid = s1.get(m);
 					 
-					 for (int q=0;q<s2.size();q++){
-						 
-						 long senseid2 = s2.get(q);
-						 int weight=mD.compute_distance(senseid, senseid2);
-						 
-						 if(weight>0){
-							 
-							 float newWeight= 1/(float) weight; 
-							 //System.out.println("final weight is:"+newWeight);
-							 try
-			                    {
-			                        Edge e = g.addEdge(Long.toString(senseid)+"_" + Long.toString(senseid2), Long.toString(senseid), Long.toString(senseid2));
-			                        e.addAttribute("weight", newWeight);
-			                        e.addAttribute("ui.label",newWeight);
-			                        
-			                    }
-			                 catch (Exception e)
-			                    {
-			                	 	System.err.println("Error: Counldn't Create Edge b/w "+senseid + "& "+senseid2+" with weight "+newWeight);
-			                        e.printStackTrace();
-			                    }
-						 }
-					 } 
+					 try {
+						List<ThreadsOutput> out = processInputs(senseid,s2,new maxDepth());
+						for (ThreadsOutput xyz:out){							 
+							 if(xyz.weight>0){
+								 
+								 float newWeight= 1/(float) xyz.weight; 
+								 //System.out.println("final weight is:"+newWeight);
+								 try
+				                    {
+				                        Edge e = g.addEdge(Long.toString(xyz.senseid)+"_" + Long.toString(xyz.senseid2), Long.toString(xyz.senseid), Long.toString(xyz.senseid2));
+				                        e.addAttribute("weight", newWeight);
+				                        e.addAttribute("ui.label",newWeight);
+				                        
+				                    }
+				                 catch (Exception e)
+				                    {
+				                        e.printStackTrace();
+				                    }
+							 } 
+						}
+					} catch (InterruptedException | ExecutionException e) {
+						e.printStackTrace();
+					} 
 				 }
 				 
 			 }
 		 }  
 	}
 	
-	public void displayGraph(){
-		
-		String styleSheet="node{fill-color:red;}"+
-		"edge{fill-color:green;}";
-		
-		g.addAttribute("ui.stylesheet",styleSheet);
-		g.addAttribute("ui.antialias", true);
-		g.display();
-		
+	/* For MultiThreading: Getting Weight  */
+	public List<ThreadsOutput> processInputs(Long senseid,ArrayList<Long> s2,maxDepth obj)
+	        throws InterruptedException, ExecutionException {
+
+	    int threads = Runtime.getRuntime().availableProcessors();
+	    ExecutorService service = Executors.newFixedThreadPool(threads);
+
+	    List<Future<ThreadsOutput>> futures = new ArrayList<Future<ThreadsOutput>>();
+	    
+	    List<Integer> iterate = new ArrayList<Integer>();
+	    
+	    for (int i=0;i<s2.size();i++){
+	    	iterate.add(i);
+	    }
+	    
+	    
+	    for (final Integer i:iterate) {
+	        Callable<ThreadsOutput> callable = new Callable<ThreadsOutput>() {
+	            public ThreadsOutput call() throws Exception {
+					 long senseid2 = s2.get(i);
+					 int weight=obj.compute_distance(senseid, senseid2);
+					 ThreadsOutput output = new ThreadsOutput(senseid,senseid2,weight);
+					 return output;
+	            }
+	        };
+	       futures.add(service.submit(callable));
+	    }
+
+	    service.shutdown();
+	    
+	    List<ThreadsOutput> outputs = new ArrayList<ThreadsOutput>();
+	    for (Future<ThreadsOutput> future : futures) {
+	        outputs.add(future.get());
+	    }
+	    return outputs; 
 	}
-		
+	
+	
+    /* Graph Centrality Algorithm */
+	
 	public HashMap<Long,Float> weightedDegree(){
 		
 		HashMap<Long,Float> inDegree = new HashMap<Long,Float>(); 
@@ -164,7 +209,5 @@ public class ConstructGraph {
 		
 		return inDegree; 
 	}
-
-	
 	
 }

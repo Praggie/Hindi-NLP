@@ -4,7 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
+//import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,29 +13,50 @@ import in.ac.iitb.cfilt.jhwnl.data.Synset;
 
 public class Main {
 
+	static String address = "./dataset/";
+	static String inputfilename="inputwords.txt";
+	static String targetWordFile="targetword.txt";
+	static String stopwordfile="hindistopwords.txt";
+	static String sensefilename="sense.txt";
+	
+	static String targetWord="";
+	static ArrayList<String> inputWords;
+	static ArrayList<String> contextWindow;
+	static ArrayList<ArrayList<String>> allContextWindow; 
+	static ArrayList<Synset> answers; 
+	static Long correct; 
+	
 	public static void main(String[] args) {
 		
-		String address = "./dataset/";
 		long timeStart = System.currentTimeMillis();
 		
-		String targetWord="";
-		Long correct=(long) 0;
-		
-		ArrayList<String> inputWords = new ArrayList<String>();
-		PreProcess pp = new PreProcess();
+		PreProcess pp = new PreProcess(address,inputfilename,targetWordFile,stopwordfile,sensefilename);
 		correct = pp.readSense(); 
 		targetWord = pp.getTargetWord(); 
+		inputWords=pp.run(); 
+		
 		
 		System.out.println("Correct Sense ID is: "+correct);
 		System.out.println("Target Word is: "+targetWord);
-		inputWords=pp.run(); 
 		System.out.println(inputWords);
 		
+		generateContextWindowsAndDisambiguate();
+		generateOutput(); 
+	
+		long timeFinish = System.currentTimeMillis();
+		long timeTook = timeFinish - timeStart; 
+		float minutes = (float) timeTook/60000; 
 		
-		ArrayList<String> contextWindow = new ArrayList<String>();
-		ArrayList<ArrayList<String>> allContextWindow = new ArrayList<ArrayList<String>>();
-		ArrayList<Synset> answers = new ArrayList<Synset>();
+		System.out.println("The Program Took "+minutes+" minutes");
+	}
+	
+	
+	public static void generateContextWindowsAndDisambiguate(){
+		
 		int contextWindowSize = 5; 
+		contextWindow = new ArrayList<String>();
+		allContextWindow = new ArrayList<ArrayList<String>>();
+		answers = new ArrayList<Synset>();
 		
 		/* Getting context window elements and then running the entire program on the window */
 		
@@ -79,12 +100,16 @@ public class Main {
 				
 				/*  WordSense would contain word from context window and it's corresponding list of senses  */
 				
-				HashMap<String,ArrayList<Long>> wordsSenses = new HashMap<String,ArrayList<Long>>();
 				WordSenses ws = new WordSenses(contextWindow);
-				wordsSenses=ws.run(); 
+				HashMap<String,ArrayList<Long>> wordsSenses=ws.run(); 
 				
 				ConstructGraph cg = new ConstructGraph(wordsSenses);
 				cg.run(); 
+				
+				/*
+				ConstructGraphMultiThreaded cg = new ConstructGraphMultiThreaded(wordsSenses);
+				cg.run();
+				*/
 
 				/* ans contains disambiguated sense of the target word
 				 * answers contains a list of ans */
@@ -100,8 +125,10 @@ public class Main {
 			}
 			
 		}
+	}
+	
+	public static void generateOutput(){
 		
-		/* to calculate the accuracy */
 		int correctDisambiguated=0; 
 		
 		/* to calculate the one sense of the entire document */
@@ -129,13 +156,9 @@ public class Main {
 				output.write(allContextWindow.get(xy).toString()+","+id);
 				output.newLine();
 				
-				/* Calculating correctly disambiguated senses  */
-				System.out.println("id: "+id+"correct: "+correct);
 				System.out.println("id: "+id.getClass().getName()+"correct: "+correct.getClass().getName());
 				
-				
 				if (id.toString().equals(correct.toString())){
-					System.out.println("if correct here");
 					correctDisambiguated+=1; 
 				}
 				
@@ -171,11 +194,8 @@ public class Main {
 			System.err.println("Can't Divide");
 			e.printStackTrace();
 		}
-		
-		long timeFinish = System.currentTimeMillis();
-		long timeTook = timeFinish - timeStart; 
-		float minutes = (float) timeTook/60000; 
-		
-		System.out.println("The Program Took "+minutes+" minutes");
 	}
+	
+	
+	
 }

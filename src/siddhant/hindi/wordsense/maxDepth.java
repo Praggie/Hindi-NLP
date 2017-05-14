@@ -11,16 +11,19 @@ import java.util.Vector;
 
 class maxDepth
 {
-  static Vector<Synset> queue ;
-  static Vector<Integer> depth ;
-  static Vector<Synset> totalList ;
+  
+  Vector<Synset> queue ;
+  Vector<Integer> depth ;
+  Vector<Synset> totalList ;
   
   
   maxDepth(){
+	  System.out.println("Initializing in maxDepth.class");
 	  JHWNL.initialize();
+	  System.out.println("");
   }
 	
-  static int Semantic_Distance(Synset s1, Synset s2)
+  int Semantic_Distance(Synset s1, Synset s2)
   {
     try
     {
@@ -96,11 +99,13 @@ class maxDepth
     	tmp1 = Dictionary.getInstance().getSynsetAt(POS.NOUN,a);
     	tmp2 = Dictionary.getInstance().getSynsetAt(POS.NOUN,b);
 	
+    	
     	System.out.println("\n");
     	System.out.println("The Synsets chosen are:\n"+tmp1+"\n"+tmp2);
+    	
 
     	int dist = Semantic_Distance(tmp1,tmp2);
-    	System.out.println("The Distance between the synsets is "+dist);
+    	System.out.println("The Distance between the synsets " + a + "_"+tmp1.getWord(1) + " and " +b+"_"+tmp2.getWord(1) + " is "+dist);
     	return dist;  
 	  }
 	  catch(Exception e) 
