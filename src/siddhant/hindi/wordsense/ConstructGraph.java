@@ -78,9 +78,12 @@ public class ConstructGraph {
 	            	
 	            	long senseid = senses.get(k);
 	            	
+	            	// rarely few different words have same senses and since each sense id becomes a node, it causes a conflict.
+	            	if (g.getNode(Long.toString(senseid))!=null){
+	            		continue; 
+	            	}
 	            	// creating each senseID a node
 	            	Node n = g.addNode(Long.toString(senseid));
-	            	
 	            	// NodeInfo custom data structure
 	            	NodeInfo details = new NodeInfo(keysArray[i].toString(),senseid);
 	            	n.addAttribute("info", details);	
