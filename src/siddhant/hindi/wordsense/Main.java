@@ -103,13 +103,14 @@ public class Main {
 				WordSenses ws = new WordSenses(contextWindow);
 				HashMap<String,ArrayList<Long>> wordsSenses=ws.run(); 
 				
+				
 				ConstructGraph cg = new ConstructGraph(wordsSenses);
-				cg.run(); 
+				cg.run();
 				
 				/*
 				ConstructGraphMultiThreaded cg = new ConstructGraphMultiThreaded(wordsSenses);
-				cg.run();
-				*/
+				cg.run(); */
+				
 
 				/* ans contains disambiguated sense of the target word
 				 * answers contains a list of ans */

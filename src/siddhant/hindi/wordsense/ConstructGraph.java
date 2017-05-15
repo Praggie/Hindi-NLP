@@ -44,9 +44,20 @@ public class ConstructGraph {
 	
 	public void run(){
 		
-		displayGraph();
+		//displayGraph();
 		construction();
 	}
+	
+	public void displayGraph(){
+	
+		String styleSheet="node{fill-color:red;}"+
+		"edge{fill-color:green;}";
+		
+		g.addAttribute("ui.stylesheet",styleSheet);
+		g.addAttribute("ui.antialias", true);
+		g.display();
+	}
+		
 	
 	public void construction(){
 		
@@ -131,17 +142,7 @@ public class ConstructGraph {
 		 }  
 	}
 	
-	public void displayGraph(){
-		
-		String styleSheet="node{fill-color:red;}"+
-		"edge{fill-color:green;}";
-		
-		g.addAttribute("ui.stylesheet",styleSheet);
-		g.addAttribute("ui.antialias", true);
-		g.display();
-		
-	}
-		
+
 	public HashMap<Long,Float> weightedDegree(){
 		
 		HashMap<Long,Float> inDegree = new HashMap<Long,Float>(); 

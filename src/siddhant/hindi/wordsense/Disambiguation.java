@@ -12,6 +12,7 @@ import java.util.HashMap;
 public class Disambiguation {
 	
 	ConstructGraph cg; 
+	//ConstructGraphMultiThreaded cg; 
 	HashMap<String,ArrayList<Long>> wordsSenses; 
 	ArrayList<Long> values; 
 	HashMap<String,Long> disambiguated; 
