@@ -16,8 +16,9 @@ public class Main {
 	static String address = "./dataset/";
 	static String inputfilename="inputwords.txt";
 	static String targetWordFile="targetword.txt";
-	static String stopwordfile="hindistopwords.txt";
 	static String sensefilename="sense.txt";
+	
+	static String stopwordfile="hindistopwords.txt";
 	
 	static String targetWord="";
 	static ArrayList<String> inputWords;
@@ -27,6 +28,14 @@ public class Main {
 	static Long correct; 
 	
 	public static void main(String[] args) {
+		
+
+		if (args.length==4){
+			address = args[0];
+			inputfilename = args[1];
+			targetWordFile = args[2];
+			sensefilename = args[3];
+		}
 		
 		long timeStart = System.currentTimeMillis();
 		
