@@ -23,11 +23,19 @@ public class WordSenses {
 	HashMap<String,ArrayList<Long>> wordsSenses;
 
 	
+	String targetWord; 
+	String[] sensesTargetWord = null; 
 	
-	WordSenses(ArrayList<String> words){
+	
+	WordSenses(ArrayList<String> words,String targetWord,String[] senseTW){
 		inputWords = words; 
 		//senseIDs = new ArrayList<Long>(); 
 		wordsSenses = new HashMap<String,ArrayList<Long>>();  
+		
+		this.targetWord = targetWord; 
+		sensesTargetWord = senseTW; 
+		
+		
 	}
 	
 	void getSenseIDs(){
@@ -35,8 +43,20 @@ public class WordSenses {
 		for (int index=0;index<inputWords.size();index++){
 			senseIDs=new ArrayList<Long>(); 
 			try {
+				if (inputWords.get(index).toString().equals(targetWord)){
+					System.out.println("Here");
+					
+					
+					
+					for(int i=0;i<sensesTargetWord.length;i++){
+						senseIDs.add(Long.parseLong(sensesTargetWord[i].trim()));
+					}
+				}
+				else {
+				
 				// would return almost everything about the word here
 				//IndexWordSet IWSet = Dictionary.getInstance().lookupAllIndexWords(inputWords.get(index));
+				
 				IndexWordSet IWSet = Dictionary.getInstance().lookupMorphedIndexWords(POS.NOUN,inputWords.get(index));
 				//IndexWord = Dictionary.getInstance().lookupIndexWord(POS.NOUN, inputWords.get(index));
 				// store multiple possible synsets as individuals 
@@ -64,6 +84,7 @@ public class WordSenses {
 					//System.out.println(" ");
 					
 				}	
+				}
 				wordsSenses.put(inputWords.get(index).toString(), senseIDs);
 			} catch (JHWNLException e) {
 				System.err.println("Internal Error raised from API.");

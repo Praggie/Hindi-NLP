@@ -1,7 +1,10 @@
 package siddhant.hindi.wordsense;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 //import java.io.Writer;
@@ -13,9 +16,13 @@ import in.ac.iitb.cfilt.jhwnl.data.Synset;
 
 public class Main {
 
-	static String address = "./dataset/";
+	static String address = "/Users/siddhant/Projects/Hindi-NLP/dataset/DataSet - Graph WSD/अंग/";
+	// file containing the paragraphs 
 	static String inputfilename="inputwords.txt";
+	
+	// this is actually the default filename in the data set
 	static String targetWordFile="targetword.txt";
+	// correct sense of the file
 	static String sensefilename="sense.txt";
 	
 	static String stopwordfile="hindistopwords.txt";
@@ -27,17 +34,73 @@ public class Main {
 	static ArrayList<Synset> answers; 
 	static Long correct; 
 	
+	// senses of the target word
+	static String[] sensesTargetWord = null; 
+	
+	
 	public static void main(String[] args) {
 		
 
-		if (args.length==4){
+		if (args.length==1){
 			address = args[0];
-			inputfilename = args[1];
-			targetWordFile = args[2];
-			sensefilename = args[3];
 		}
 		
 		long timeStart = System.currentTimeMillis();
+		processDirectoryandExecute();
+		
+		long timeFinish = System.currentTimeMillis();
+		long timeTook = timeFinish - timeStart; 
+		float minutes = (float) timeTook/60000; 
+		
+		System.out.println("The Program Took "+minutes+" minutes");
+	}
+	
+	
+	public static void processDirectoryandExecute(){
+				
+				// this is a csv file
+				String numberSensesFile = address + "No_of_Senses.txt";
+				BufferedReader br = null;
+			    String csvSplitBy = ",";
+			   
+				
+			    try {
+
+		            br = new BufferedReader(new FileReader(numberSensesFile));
+		            // there is only one line in the csv file
+		            sensesTargetWord = br.readLine().split(csvSplitBy);
+		            
+		        } catch (FileNotFoundException e) {
+		            e.printStackTrace();
+		        } catch (IOException e) {
+		            e.printStackTrace();
+		        } finally {
+		            if (br != null) {
+		                try {
+		                    br.close();
+		                } catch (IOException e) {
+		                    e.printStackTrace();
+		                }
+		            }
+		        }
+			    
+			    // to get the number of files in the directory 
+			    if (sensesTargetWord!=null){
+			    	int nFiles = sensesTargetWord.length; 
+			    	System.out.println(nFiles);
+			    	for (int i=1;i<nFiles+1;i++){
+			    		inputfilename = "ContextSenses00"+i+".txt"; 
+			    		sensefilename = "Senses00"+i+".txt";
+			    		System.out.println(sensefilename);
+			    		System.out.println(inputfilename);
+			    		// this is going to  take crazy time. 
+			    		executeLogic(); 
+			    	}
+			    }
+			    		
+	}
+	
+	public static int executeLogic(){
 		
 		PreProcess pp = new PreProcess(address,inputfilename,targetWordFile,stopwordfile,sensefilename);
 		correct = pp.readSense(); 
@@ -51,12 +114,7 @@ public class Main {
 		
 		generateContextWindowsAndDisambiguate();
 		generateOutput(); 
-	
-		long timeFinish = System.currentTimeMillis();
-		long timeTook = timeFinish - timeStart; 
-		float minutes = (float) timeTook/60000; 
-		
-		System.out.println("The Program Took "+minutes+" minutes");
+		return 1; 
 	}
 	
 	
@@ -109,7 +167,7 @@ public class Main {
 				
 				/*  WordSense would contain word from context window and it's corresponding list of senses  */
 				
-				WordSenses ws = new WordSenses(contextWindow);
+				WordSenses ws = new WordSenses(contextWindow,targetWord,sensesTargetWord);
 				HashMap<String,ArrayList<Long>> wordsSenses=ws.run(); 
 				
 				

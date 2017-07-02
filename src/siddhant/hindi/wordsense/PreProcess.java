@@ -47,7 +47,7 @@ public class PreProcess {
 	public Long readSense(){
 		
 		try {
-			BufferedReader input = new BufferedReader(new InputStreamReader(new FileInputStream(address+sensefilename),"unicode"));
+			BufferedReader input = new BufferedReader(new InputStreamReader(new FileInputStream(address+sensefilename)));
 			String ans = input.readLine().trim();
 			Long sen = Long.valueOf(ans);
 			input.close();
