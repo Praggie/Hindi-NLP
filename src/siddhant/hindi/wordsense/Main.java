@@ -15,6 +15,7 @@ import in.ac.iitb.cfilt.jhwnl.data.Synset;
 
 public class Main {
 
+	// this will actually be the command line input for the program
 	static String address = "/Users/siddhant/Projects/Hindi-NLP/dataset/अंग/";
 	// file containing the paragraphs 
 	static String inputfilename="inputwords.txt";
@@ -46,6 +47,11 @@ public class Main {
 
 	
 	public static void main(String[] args) {
+		
+	       System.out.println("Working Directory = " +
+	               System.getProperty("user.dir"));
+	       
+	     stopwordfile =  System.getProperty("user.dir")+"/dataset/hindistopwords.txt";
 		
 		precisions = new ArrayList<Double>();
 		recalls = new ArrayList<Double>();
