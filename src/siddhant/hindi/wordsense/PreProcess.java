@@ -34,13 +34,13 @@ public class PreProcess {
 	ArrayList<String> run(){
 		
 		ArrayList<String> cleanWords; 
-		cleanWords=readAndFilter(inputfilename); 
-		/*
+		cleanWords=readAndFilter(address+inputfilename); 
+		
 		ArrayList<String> stopWordsRemoved; 
 		stopWordsRemoved=stopWordRemoval(cleanWords);
-		*/
-		return cleanWords; 
-		//return stopWordsRemoved; 
+		
+		//return cleanWords; 
+		return stopWordsRemoved; 
 	}
 	
 	
@@ -107,8 +107,8 @@ public class PreProcess {
 	 */
 	public ArrayList<String> readAndFilter(String inp)
 	{
-		File inFile = new File(address+inp);
-		File outFile = new File(address+"filterProcessed-"+inp);
+		File inFile = new File(inp);
+		File outFile = new File(inp+"filterprocess.txt");
 		String text  = "";
 		
 		BufferedReader input=null; 

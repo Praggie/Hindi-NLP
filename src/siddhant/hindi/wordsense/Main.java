@@ -9,14 +9,13 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 //import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 
 import in.ac.iitb.cfilt.jhwnl.data.Synset;
 
 public class Main {
 
-	static String address = "/Users/siddhant/Projects/Hindi-NLP/dataset/DataSet - Graph WSD/अंग/";
+	static String address = "/Users/siddhant/Projects/Hindi-NLP/dataset/अंग/";
 	// file containing the paragraphs 
 	static String inputfilename="inputwords.txt";
 	
@@ -25,7 +24,7 @@ public class Main {
 	// correct sense of the file
 	static String sensefilename="sense.txt";
 	
-	static String stopwordfile="hindistopwords.txt";
+	static String stopwordfile="/dataset/hindistopwords.txt";
 	
 	static String targetWord="";
 	static ArrayList<String> inputWords;
@@ -34,12 +33,23 @@ public class Main {
 	static ArrayList<Synset> answers; 
 	static Long correct; 
 	
+	// correct/processed
+	static ArrayList<Double> precisions = null;
+	// correct/all-instances
+	static ArrayList<Double> recalls = null; 
+	// number of instances of the target word in a file
+	static ArrayList<Integer> instances = null; 
+	
 	// senses of the target word
 	static String[] sensesTargetWord = null; 
-	
+	static int instance; 
+
 	
 	public static void main(String[] args) {
 		
+		precisions = new ArrayList<Double>();
+		recalls = new ArrayList<Double>();
+		instances = new ArrayList<Integer>(); 
 
 		if (args.length==1){
 			address = args[0];
@@ -47,7 +57,7 @@ public class Main {
 		
 		long timeStart = System.currentTimeMillis();
 		processDirectoryandExecute();
-		
+		finalResult();
 		long timeFinish = System.currentTimeMillis();
 		long timeTook = timeFinish - timeStart; 
 		float minutes = (float) timeTook/60000; 
@@ -91,10 +101,25 @@ public class Main {
 			    	for (int i=1;i<nFiles+1;i++){
 			    		inputfilename = "ContextSenses00"+i+".txt"; 
 			    		sensefilename = "Senses00"+i+".txt";
+			    		String instancesfilename = "Instances"+i+".txt"; 
+			    		
+			    		try {
+							BufferedReader instancefile = new BufferedReader(new FileReader(address+instancesfilename));
+							instance = Integer.parseInt(instancefile.readLine().trim());
+							instances.add(instance);
+							instancefile.close();
+						} catch  (NumberFormatException | IOException e) {
+							System.out.println("Couldn't Open Instances"+i+".txt File ");
+							e.printStackTrace();
+							System.exit(0);
+						}
+			    		
+			    		
 			    		System.out.println(sensefilename);
 			    		System.out.println(inputfilename);
 			    		// this is going to  take crazy time. 
 			    		executeLogic(); 
+			    		generateOutput(i); 
 			    	}
 			    }
 			    		
@@ -113,7 +138,6 @@ public class Main {
 		System.out.println(inputWords);
 		
 		generateContextWindowsAndDisambiguate();
-		generateOutput(); 
 		return 1; 
 	}
 	
@@ -195,22 +219,13 @@ public class Main {
 		}
 	}
 	
-	public static void generateOutput(){
+	public static void generateOutput(int filenumber){
 		
 		int correctDisambiguated=0; 
 		
-		/* to calculate the one sense of the entire document */
-		HashMap<Long,Integer> voting = new HashMap<Long,Integer>();
-		
-		/* creating two output files 
-		 * 1. outputDetailed: it contains the context window and the complete synset
-		 * 2. output: it contains the context window and only the sense id
-		 */
-		
 		try {
-			BufferedWriter outputDetailed,output = null;
-			outputDetailed = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(address+"outputDetailed.txt"), "unicode"));            
-			output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(address+"output.txt"), "unicode"));		
+			BufferedWriter output = null;
+			output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(address+"detailedOutput"+filenumber+".txt"), "unicode"));		
 			
 			System.out.println(" ");
 			for (int xy=0;xy<answers.size();xy++){
@@ -219,8 +234,6 @@ public class Main {
 				
 				Long id=answers.get(xy).getOffset();
 				
-				outputDetailed.write(allContextWindow.get(xy).toString()+","+answers.get(xy));
-				outputDetailed.newLine();
 				output.write(allContextWindow.get(xy).toString()+","+id);
 				output.newLine();
 				
@@ -230,40 +243,64 @@ public class Main {
 					correctDisambiguated+=1; 
 				}
 				
-				/* Getting the most occurrence of a sense id by counting each sense id 
-				 * for document voting
-				 */
-				if (voting.containsKey(id)==true){
-					int value = voting.get(id);
-					voting.put(id, value+1);
-				}
-				else{
-					voting.put(id, 1);
-				}
 			}
-			outputDetailed.close();
+	
 			output.close();
 		} catch (IOException e){
-			System.err.println("Can't write to file outputDetailed.txt");
+			System.err.println("Can't write to file detailedOutput.txt");
 		}
 		
-		
-		/* Getting the key with maximum counts for document voting */
-		
-		Long elected = Collections.max(voting.entrySet(), (entry1, entry2) -> entry1.getValue() - entry2.getValue()).getKey();
-		System.out.println("\nThe complete document disambiguated is:"+elected);
-		
-
 		/* Calculating Accuracy */
 		try {
-			float accuracy = correctDisambiguated/answers.size(); 
-			System.out.println("\n\nThe Accuracy of the System is: "+accuracy*100+"%");
+			double precision = correctDisambiguated/answers.size(); 
+			precisions.add(precision);
+			double recall = correctDisambiguated/instance;
+			recalls.add(recall);
+			System.out.println("\n\nThe Precision of the System is: "+precision*100+"%");
+			System.out.println("\n\nThe Recall of the System is: "+recall*100+"%");
+			BufferedWriter result = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(address+"result"+filenumber+".txt")));
+			result.write("TotalInstances,"+instance);
+			result.newLine();
+			result.write("TotalProcessed,"+answers.size());
+			result.newLine(); 
+			result.write("CorrectDisambiguated,"+correctDisambiguated);
+			result.newLine();
+			result.write("Precision,"+precision);
+			result.newLine(); 
+			result.write("Recall,"+recall);
+			result.close();
 		} catch (Exception e){
 			System.err.println("Can't Divide");
 			e.printStackTrace();
 		}
 	}
 	
-	
+	public static void finalResult(){
+		
+		double pTotal = 0; 
+		double rTotal = 0; 
+		int size = precisions.size();
+		for (int i=0;i<size;i++){
+			pTotal += precisions.get(i);
+			rTotal += recalls.get(i);
+		}
+		
+		double fprecision = pTotal/size; 
+		double frecall = rTotal/size; 
+		
+		System.out.println("Final Precison: "+fprecision);
+		System.out.println("Final Recall: "+frecall);
+		
+		try {
+			
+			BufferedWriter fresult = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(address+"final_result.txt")));
+			fresult.write("Precision,"+fprecision+",Recall,"+frecall);
+			fresult.close();
+		}
+		catch (Exception e){
+			System.out.println("Final Output Error in Writing File");
+		}
+		
+	}
 	
 }
