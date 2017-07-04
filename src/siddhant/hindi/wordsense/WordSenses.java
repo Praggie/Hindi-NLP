@@ -44,7 +44,7 @@ public class WordSenses {
 			senseIDs=new ArrayList<Long>(); 
 			try {
 				if (inputWords.get(index).toString().equals(targetWord)){
-					System.out.println("Here");
+					//System.out.println("Here");
 					
 					
 					

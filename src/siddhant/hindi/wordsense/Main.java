@@ -48,10 +48,10 @@ public class Main {
 	
 	public static void main(String[] args) {
 		
-	       System.out.println("Working Directory = " +
+	    System.out.println("Working Directory = " +
 	               System.getProperty("user.dir"));
 	       
-	     stopwordfile =  System.getProperty("user.dir")+"/dataset/hindistopwords.txt";
+	    stopwordfile =  System.getProperty("user.dir")+"/dataset/hindistopwords.txt";
 		
 		precisions = new ArrayList<Double>();
 		recalls = new ArrayList<Double>();
@@ -59,6 +59,12 @@ public class Main {
 
 		if (args.length==1){
 			address = args[0];
+		}
+		else {
+			System.out.println("Usage Error: Command Line Argument Required");
+			System.out.println("-AddressToTheDirectoyOfAWord");
+			System.out.println("Exiting!");
+			System.exit(1);
 		}
 		
 		long timeStart = System.currentTimeMillis();

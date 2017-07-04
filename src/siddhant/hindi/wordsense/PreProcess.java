@@ -36,11 +36,11 @@ public class PreProcess {
 		ArrayList<String> cleanWords; 
 		cleanWords=readAndFilter(address+inputfilename); 
 		
-		ArrayList<String> stopWordsRemoved; 
-		stopWordsRemoved=stopWordRemoval(cleanWords);
+		ArrayList<String> stopWordRemoved; 
+		stopWordRemoved=stopWordRemoval(cleanWords);
 		
 		//return cleanWords; 
-		return stopWordsRemoved; 
+		return stopWordRemoved; 
 	}
 	
 	
@@ -292,15 +292,20 @@ public class PreProcess {
     	String[] arrayfil = new String [fil.size()];
     	String[] file = fil.toArray(arrayfil);
     	
+    	
     	ArrayList<String> stopWordsRemoved = new ArrayList<String>();
     	
     	for(int i =0; i < file.length; i++){
+    		Boolean isStopWord = false; 
     		for(int j = 0 ; j < astopword.length; j++){
-    			if (file[i].equalsIgnoreCase(astopword[j])==false) {
-    				stopWordsRemoved.add(file[i]);
+    			if (file[i].equalsIgnoreCase(astopword[j])==true) {
+    				isStopWord = true; 
     			}
     		}
-    	}
-    	return(stopWordsRemoved);
+			if (isStopWord == false){
+			stopWordsRemoved.add(file[i]);
+			}
+    	}   	
+    	return stopWordsRemoved;
     } 
 }
