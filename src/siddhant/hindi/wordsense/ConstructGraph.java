@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
+import org.graphstream.graph.IdAlreadyInUseException;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 
@@ -97,7 +98,7 @@ public class ConstructGraph {
 	            }
 	        }
 		 
-		 /* Each word has multiple senses and I don't want any relation (weight/wordnet distance) between them 
+		 /* Each word has multiple senses and I don't want any relation (weight/wordnet distance) between themselves 
 		  * Hence I take a word (key) and then start from next corresponding word (p=l+1, in the code)
 		  * Of each word (key) I get the arrayList (key) containing senseIDs  
 		  * Now I find the maximum depth in the word net comparing the senseIDs of first key and the senseIDs of the corresponding keys
@@ -118,13 +119,18 @@ public class ConstructGraph {
 					 
 					 for (int q=0;q<s2.size();q++){
 						 
+						 
 						 long senseid2 = s2.get(q);
+						 
+						 System.out.println("");
+						 System.out.println("Calculating Distance b/w "+senseid+" & "+senseid2);
 						 int weight=mD.compute_distance(senseid, senseid2);
+					
 						 
 						 if(weight>0){
 							 
 							 float newWeight= 1/(float) weight; 
-							 //System.out.println("final weight is:"+newWeight);
+							 System.out.println("The Weight b/w "+senseid+" & "+senseid2+" is "+newWeight);
 							 try
 			                    {
 			                        Edge e = g.addEdge(Long.toString(senseid)+"_" + Long.toString(senseid2), Long.toString(senseid), Long.toString(senseid2));
@@ -132,11 +138,22 @@ public class ConstructGraph {
 			                        e.addAttribute("ui.label",newWeight);
 			                        
 			                    }
-			                 catch (Exception e)
+			                 catch (IdAlreadyInUseException e)
 			                    {
-			                	 	System.err.println("Error: Counldn't Create Edge b/w "+senseid + "& "+senseid2+" with weight "+newWeight);
-			                        e.printStackTrace();
+			                	 	System.err.println("The Edge Already Exists b/w "+senseid + "& "+senseid2+" with same weight "+newWeight);
+			                	 	System.err.println("Increasing Importance of The Same Egde");
+			                	 	String edgeId = Long.toString(senseid)+"_" + Long.toString(senseid2);
+			                	 	Edge e1 = g.getEdge(edgeId);
+			                	 	float oldWeight = e1.getAttribute("weight");
+			                	 	e1.changeAttribute("weight", newWeight+oldWeight);
+			                	 	e1.changeAttribute("ui.label", newWeight+oldWeight);
+			                	 	float updatedWeight = e1.getAttribute("weight");
+			                	 	System.out.println("The Updated Weight is: "+updatedWeight);
 			                    }
+							 catch (Exception e){
+								 	System.err.println("No Idea What Went Wrong!");
+								 	e.printStackTrace();
+							 }
 						 }
 					 } 
 				 }

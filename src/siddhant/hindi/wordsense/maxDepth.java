@@ -7,6 +7,7 @@ import in.ac.iitb.cfilt.jhwnl.data.Synset;
 import in.ac.iitb.cfilt.jhwnl.data.POS;
 import in.ac.iitb.cfilt.jhwnl.dictionary.Dictionary;
 
+import java.util.HashMap;
 import java.util.Vector;
 
 class maxDepth
@@ -15,7 +16,8 @@ class maxDepth
   Vector<Synset> queue ;
   Vector<Integer> depth ;
   Vector<Synset> totalList ;
-  
+  static HashMap<String,Integer> calculatedDistances = new HashMap<String,Integer>();
+
   
   maxDepth(){
 	  System.out.println("Initializing in maxDepth.class");
@@ -89,6 +91,13 @@ class maxDepth
 
   public int compute_distance (long a, long b)
   {
+	  
+	  String key = Long.toString(a)+"_"+Long.toString(b);
+	  if (calculatedDistances.containsKey(key)){
+		  int dist = calculatedDistances.get(key);
+		  return dist; 
+	  }
+	  
 	  try
 	  {
     	queue = new Vector<Synset>(40000);
@@ -100,12 +109,14 @@ class maxDepth
     	tmp2 = Dictionary.getInstance().getSynsetAt(POS.NOUN,b);
 	
     	
-    	System.out.println("\n");
-    	System.out.println("The Synsets chosen are:\n"+tmp1+"\n"+tmp2);
+//    	System.out.println("\n");
+//    	System.out.println("The Synsets chosen are:\n"+tmp1+"\n"+tmp2);
     	
 
     	int dist = Semantic_Distance(tmp1,tmp2);
     	System.out.println("The Distance between the synsets " + a + "_"+tmp1.getWord(1) + " and " +b+"_"+tmp2.getWord(1) + " is "+dist);
+    	
+    	calculatedDistances.put(key, dist);
     	return dist;  
 	  }
 	  catch(Exception e) 
