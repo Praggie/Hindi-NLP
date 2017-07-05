@@ -264,9 +264,9 @@ public class Main {
 		
 		/* Calculating Accuracy */
 		try {
-			double precision = correctDisambiguated/answers.size(); 
+			double precision = (double) correctDisambiguated/answers.size(); 
 			precisions.add(precision);
-			double recall = correctDisambiguated/instance;
+			double recall = (double) correctDisambiguated/instance;
 			recalls.add(recall);
 			System.out.println("\n\nThe Precision of the System is: "+precision*100+"%");
 			System.out.println("\n\nThe Recall of the System is: "+recall*100+"%");
@@ -297,8 +297,8 @@ public class Main {
 			rTotal += recalls.get(i);
 		}
 		
-		double fprecision = pTotal/size; 
-		double frecall = rTotal/size; 
+		double fprecision = (float) pTotal/size; 
+		double frecall = (float) rTotal/size; 
 		
 		System.out.println("Final Precison: "+fprecision);
 		System.out.println("Final Recall: "+frecall);
