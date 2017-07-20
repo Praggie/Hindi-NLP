@@ -207,7 +207,7 @@ public class Main {
 				HashMap<String,ArrayList<Long>> wordsSenses=ws.run(); 
 				
 				
-				ConstructGraph cg = new ConstructGraph(wordsSenses);
+				ConstructGraph cg = new ConstructGraph(wordsSenses,targetWord);
 				cg.run();
 				
 				/*
@@ -227,7 +227,6 @@ public class Main {
 				contextWindow = new ArrayList<String>();
 				
 			}
-			
 		}
 	}
 	

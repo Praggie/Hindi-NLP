@@ -17,7 +17,7 @@ class maxDepth
   Vector<Integer> depth ;
   Vector<Synset> totalList ;
   static HashMap<String,Integer> calculatedDistances = new HashMap<String,Integer>();
-
+  static int nyahoo=0; 
   
   maxDepth(){
 	  System.out.println("Initializing in maxDepth.class");
@@ -93,8 +93,17 @@ class maxDepth
   {
 	  
 	  String key = Long.toString(a)+"_"+Long.toString(b);
+	  String reversekey  = Long.toString(b)+"_"+Long.toString(a);
 	  if (calculatedDistances.containsKey(key)){
+		  nyahoo+=1; 
+		  System.out.println(" "+nyahoo+" Yahoo!! "+key);
 		  int dist = calculatedDistances.get(key);
+		  return dist; 
+	  }
+	  if (calculatedDistances.containsKey(reversekey)){
+		  nyahoo+=1; 
+		  System.out.println(" "+nyahoo+" Yahoo!! "+reversekey);
+		  int dist = calculatedDistances.get(reversekey);
 		  return dist; 
 	  }
 	  

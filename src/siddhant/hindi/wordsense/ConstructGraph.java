@@ -33,14 +33,16 @@ public class ConstructGraph {
 	ArrayList<Long> senses; 
 	Graph g; 
 	maxDepth mD; 
+	String targetword; 
 
 	
-	ConstructGraph(HashMap<String,ArrayList<Long>> ws){
+	ConstructGraph(HashMap<String,ArrayList<Long>> ws,String targetword){
 		mD = new maxDepth();
 		wordsSenses=ws; 
 		senses = new ArrayList<Long>();
 		keys = new HashSet<String>();
 		g=new MultiGraph("Graph");
+		this.targetword = targetword; 
 	}
 	
 	public void run(){
@@ -69,7 +71,17 @@ public class ConstructGraph {
 		 Object[] keysArray; 
 		 keysArray=keys.toArray();
 		 
+		 int targetwordIndex=-1; 
+		 for (int index=0;index<keysArray.length;index++) {
+			 if(keysArray[index].equals(targetword)) {
+				 targetwordIndex=index; 
+				 System.out.println("The Target Word Index : "+index);
+				 break;
+			 }
+		 }
 		 
+		 
+		 // creating all nodes in the graph here by getting the senses of all the words (key)
 		 for (int i = 0; i < keysArray.length; i++) {
 	           
 			 	// gets the value of the respective key here
@@ -98,17 +110,32 @@ public class ConstructGraph {
 	            }
 	        }
 		 
+//		 ArrayList<Long> s1 = new ArrayList<Long>();
+//		 s1 = wordsSenses.get(keysArray[targetwordIndex]);
+//		 for (int l=0;l<keysArray.length;l++) {
+//			 if(keysArray[l].equals(targetword)) {
+//				 continue;
+//			 }
+//			 ArrayList<Long> s2 = new ArrayList<Long>();
+//			 s2 = wordsSenses.get(keysArray[l]);
+//			 
+//		 }
+		 
 		 /* Each word has multiple senses and I don't want any relation (weight/wordnet distance) between themselves 
 		  * Hence I take a word (key) and then start from next corresponding word (p=l+1, in the code)
 		  * Of each word (key) I get the arrayList (key) containing senseIDs  
 		  * Now I find the maximum depth in the word net comparing the senseIDs of first key and the senseIDs of the corresponding keys
 		  */
-		 for (int l=0;l<keysArray.length;l++){
+		// for (int l=0;l<keysArray.length;l++){
 			 
 			 ArrayList<Long> s1 = new ArrayList<Long>();
-			 s1 = wordsSenses.get(keysArray[l]);
+			 s1 = wordsSenses.get(keysArray[targetwordIndex]);
 			 
-			 for (int p=l+1;p<keysArray.length;p++){
+			 for (int p=0;p<keysArray.length;p++){
+				 
+				 if(keysArray[p].equals(targetword)) {
+					 continue;
+				 }
 				 
 				 ArrayList<Long> s2 = new ArrayList<Long>();
 				 s2 = wordsSenses.get(keysArray[p]);
@@ -159,7 +186,7 @@ public class ConstructGraph {
 				 }
 				 
 			 }
-		 }  
+		 //}  
 	}
 	
 

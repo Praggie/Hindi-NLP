@@ -1,0 +1,5 @@
+TotalInstances,21
+TotalProcessed,6
+CorrectDisambiguated,2
+Precision,0.3333333333333333
+Recall,0.09523809523809523
